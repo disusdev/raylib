@@ -1996,6 +1996,7 @@ ModelAnimation *LoadModelAnimations(const char *fileName, int *animCount)
     return animations;
 }
 
+
 // Update model animated vertex data (positions and normals) for a given frame
 // NOTE: Updated data is uploaded to GPU
 void UpdateModelAnimation(Model model, ModelAnimation anim, int frame)
@@ -4958,6 +4959,9 @@ static Model LoadGLTF(const char *fileName)
                 // NOTE: We only support primitives defined by triangles
                 // Other alternatives: points, lines, line_strip, triangle_strip
                 if (data->meshes[i].primitives[p].type != cgltf_primitive_type_triangles) continue;
+
+                model.meshes[meshIndex].name = MemAlloc(strlen(data->meshes[i].name) + 1U);
+                strcat(model.meshes[meshIndex].name, data->meshes[i].name);
 
                 // NOTE: Attributes data could be provided in several data formats (8, 8u, 16u, 32...),
                 // Only some formats for each attribute type are supported, read info at the top of this function!
