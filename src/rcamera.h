@@ -370,14 +370,24 @@ void CameraPitch(Camera *camera, float angle, bool lockView, bool rotateAroundTa
 
         // Clamp view up
         float maxAngleUp = Vector3Angle(up, targetPosition);
+        
         maxAngleUp -= 0.001f; // avoid numerical errors
-        if (angle > maxAngleUp) angle = maxAngleUp;
+        
+        if (angle > maxAngleUp)
+        {
+          angle = maxAngleUp;
+        }
 
         // Clamp view down
         float maxAngleDown = Vector3Angle(Vector3Negate(up), targetPosition);
+        
         maxAngleDown *= -1.0f; // downwards angle is negative
         maxAngleDown += 0.001f; // avoid numerical errors
-        if (angle < maxAngleDown) angle = maxAngleDown;
+        
+        if (angle < maxAngleDown)
+        {
+          angle = maxAngleDown;
+        }
     }
 
     // Rotation axis
@@ -449,7 +459,7 @@ void UpdateCamera(Camera *camera, int mode)
 
     bool moveInWorldPlane = ((mode == CAMERA_FIRST_PERSON) || (mode == CAMERA_THIRD_PERSON));
     bool rotateAroundTarget = ((mode == CAMERA_THIRD_PERSON) || (mode == CAMERA_ORBITAL));
-    bool lockView = ((mode == CAMERA_FIRST_PERSON) || (mode == CAMERA_THIRD_PERSON) || (mode == CAMERA_ORBITAL));
+    bool lockView = true;// ((mode == CAMERA_FIRST_PERSON) || (mode == CAMERA_THIRD_PERSON) || (mode == CAMERA_ORBITAL));
     bool rotateUp = false;
 
     if (mode == CAMERA_ORBITAL)
@@ -467,8 +477,11 @@ void UpdateCamera(Camera *camera, int mode)
         if (IsKeyDown(KEY_UP)) CameraPitch(camera, CAMERA_ROTATION_SPEED, lockView, rotateAroundTarget, rotateUp);
         if (IsKeyDown(KEY_RIGHT)) CameraYaw(camera, -CAMERA_ROTATION_SPEED, rotateAroundTarget);
         if (IsKeyDown(KEY_LEFT)) CameraYaw(camera, CAMERA_ROTATION_SPEED, rotateAroundTarget);
-        if (IsKeyDown(KEY_Q)) CameraRoll(camera, -CAMERA_ROTATION_SPEED);
-        if (IsKeyDown(KEY_E)) CameraRoll(camera, CAMERA_ROTATION_SPEED);
+        // if (IsKeyDown(KEY_Q)) CameraRoll(camera, -CAMERA_ROTATION_SPEED);
+        // if (IsKeyDown(KEY_E)) CameraRoll(camera, CAMERA_ROTATION_SPEED);
+        
+        float camera_speed = CAMERA_MOVE_SPEED;
+        if (IsKeyDown(KEY_LEFT_SHIFT)) camera_speed = CAMERA_MOVE_SPEED * 4;
 
         // Camera movement
         if (!IsGamepadAvailable(0))
@@ -490,10 +503,10 @@ void UpdateCamera(Camera *camera, int mode)
             }
 
             // Keyboard support
-            if (IsKeyDown(KEY_W)) CameraMoveForward(camera, CAMERA_MOVE_SPEED, moveInWorldPlane);
-            if (IsKeyDown(KEY_A)) CameraMoveRight(camera, -CAMERA_MOVE_SPEED, moveInWorldPlane);
-            if (IsKeyDown(KEY_S)) CameraMoveForward(camera, -CAMERA_MOVE_SPEED, moveInWorldPlane);
-            if (IsKeyDown(KEY_D)) CameraMoveRight(camera, CAMERA_MOVE_SPEED, moveInWorldPlane);
+            if (IsKeyDown(KEY_W)) CameraMoveForward(camera, camera_speed, moveInWorldPlane);
+            if (IsKeyDown(KEY_A)) CameraMoveRight(camera, -camera_speed, moveInWorldPlane);
+            if (IsKeyDown(KEY_S)) CameraMoveForward(camera, -camera_speed, moveInWorldPlane);
+            if (IsKeyDown(KEY_D)) CameraMoveRight(camera, camera_speed, moveInWorldPlane);
         }
         else
         {
@@ -501,16 +514,16 @@ void UpdateCamera(Camera *camera, int mode)
             CameraYaw(camera, -(GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_X) * 2)*CAMERA_MOUSE_MOVE_SENSITIVITY, rotateAroundTarget);
             CameraPitch(camera, -(GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_Y) * 2)*CAMERA_MOUSE_MOVE_SENSITIVITY, lockView, rotateAroundTarget, rotateUp);
 
-            if (GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_Y) <= -0.25f) CameraMoveForward(camera, CAMERA_MOVE_SPEED, moveInWorldPlane);
-            if (GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_X) <= -0.25f) CameraMoveRight(camera, -CAMERA_MOVE_SPEED, moveInWorldPlane);
-            if (GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_Y) >= 0.25f) CameraMoveForward(camera, -CAMERA_MOVE_SPEED, moveInWorldPlane);
-            if (GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_X) >= 0.25f) CameraMoveRight(camera, CAMERA_MOVE_SPEED, moveInWorldPlane);
+            if (GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_Y) <= -0.25f) CameraMoveForward(camera, camera_speed, moveInWorldPlane);
+            if (GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_X) <= -0.25f) CameraMoveRight(camera, -camera_speed, moveInWorldPlane);
+            if (GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_Y) >= 0.25f) CameraMoveForward(camera, -camera_speed, moveInWorldPlane);
+            if (GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_X) >= 0.25f) CameraMoveRight(camera, camera_speed, moveInWorldPlane);
         }
 
         if (mode == CAMERA_FREE)
         {
-            if (IsKeyDown(KEY_SPACE)) CameraMoveUp(camera, CAMERA_MOVE_SPEED);
-            if (IsKeyDown(KEY_LEFT_CONTROL)) CameraMoveUp(camera, -CAMERA_MOVE_SPEED);
+            if (IsKeyDown(KEY_SPACE)) CameraMoveUp(camera, camera_speed);
+            if (IsKeyDown(KEY_LEFT_CONTROL)) CameraMoveUp(camera, -camera_speed);
         }
     }
 
